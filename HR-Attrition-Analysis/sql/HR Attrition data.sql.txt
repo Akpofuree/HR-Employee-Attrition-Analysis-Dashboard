@@ -1,0 +1,267 @@
+-- ============================================================
+-- HR EMPLOYEE ATTRITION SQL ANALYSIS
+-- Dataset: IBM HR Analytics Employee Attrition & Performance
+-- Source: Provided by a former employee (anonymous)
+-- Tool: SQLiteOnline.com
+-- Author: Akpofure
+-- ============================================================
+
+-- ============================================================
+-- HOW TO USE THIS FILE
+-- 1. Go to sqliteonline.com
+-- 2. Import your CSV file and name the table: hr_data
+--    (make sure "First row is header" is checked on import)
+-- 3. Copy and paste each query one at a time into the query box
+-- 4. Press the Run / Execute button to see results
+-- Note: Run queries one at a time, not all together
+-- ============================================================
+
+
+-- ============================================================
+-- QUESTION 1
+-- Which department has the highest attrition rate?
+--
+-- HYPOTHESIS: The Research and Development department is likely
+-- to have the highest attrition rate because it appears to have
+-- more employees leaving compared to other departments.
+--
+-- HOW THIS QUERY WORKS:
+-- COUNT(*) counts all employees per department
+-- CASE WHEN gives each leaver a value of 1, stayers get 0
+-- SUM adds up all the 1s to count total leavers
+-- ROUND(..., 2) cleans the percentage to 2 decimal places
+-- GROUP BY splits the data into one group per department
+-- ORDER BY DESC puts the highest attrition rate at the top
+-- ============================================================
+
+SELECT Department,
+       COUNT(*) AS Total_Employees,
+       SUM(CASE WHEN Attrition = 'Yes' THEN 1 ELSE 0 END) AS Employees_Left,
+       ROUND(100.0 * SUM(CASE WHEN Attrition = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 2) AS Attrition_Rate
+FROM hr_data
+GROUP BY Department
+ORDER BY Attrition_Rate DESC;
+
+-- FINDINGS:
+-- Sales department recorded the highest attrition rate at 20.63%
+-- Human Resources followed at 19.05%
+-- Research & Development had the lowest rate at 13.84%
+--
+-- HYPOTHESIS RESULT: Hypothesis was incorrect.
+-- R&D had the most leavers in raw numbers due to its large size,
+-- but Sales had the highest RATE. Size and rate are different things.
+
+
+-- ============================================================
+-- QUESTION 2
+-- Do employees who work overtime leave more often?
+--
+-- HYPOTHESIS: Employees who work overtime are more likely to
+-- leave the company due to increased stress, workload,
+-- and reduced personal time.
+--
+-- HOW THIS QUERY WORKS:
+-- Same structure as Query 1 but grouped by OverTime (Yes/No)
+-- This lets us directly compare attrition rates between
+-- overtime and non-overtime employees side by side
+-- ============================================================
+
+SELECT OverTime,
+       COUNT(*) AS Total_Employees,
+       SUM(CASE WHEN Attrition = 'Yes' THEN 1 ELSE 0 END) AS Employees_Left,
+       ROUND(100.0 * SUM(CASE WHEN Attrition = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 2) AS Attrition_Rate
+FROM hr_data
+GROUP BY OverTime
+ORDER BY Attrition_Rate DESC;
+
+-- FINDINGS:
+-- Employees working overtime: 30.53% attrition rate
+-- Employees NOT working overtime: 10.44% attrition rate
+--
+-- HYPOTHESIS RESULT: Hypothesis was CORRECT.
+-- Overtime employees leave at nearly 3x the rate of non-overtime employees.
+-- Business Insight: HR should investigate workload distribution
+-- and overtime policies to reduce burnout-driven attrition.
+
+
+-- ============================================================
+-- QUESTION 3
+-- Does monthly income affect employee attrition?
+--
+-- HYPOTHESIS: Employees with lower salaries may be more likely
+-- to leave in search of better financial opportunities
+-- and improved living conditions.
+--
+-- HOW THIS QUERY WORKS:
+-- AVG(MonthlyIncome) calculates the average salary
+-- We group by Attrition (Yes/No) to compare average income
+-- between employees who left and those who stayed
+-- ROUND(..., 2) cleans the result to 2 decimal places
+-- ============================================================
+
+SELECT Attrition,
+       ROUND(AVG(MonthlyIncome), 2) AS Average_Monthly_Income
+FROM hr_data
+GROUP BY Attrition;
+
+-- FINDINGS:
+-- Employees who STAYED average monthly income: 6,832.74
+-- Employees who LEFT average monthly income: 4,787.09
+--
+-- HYPOTHESIS RESULT: Hypothesis was CORRECT.
+-- Employees who left earned significantly less on average.
+-- Business Insight: HR leadership should review compensation
+-- structures and salary competitiveness to reduce turnover.
+
+
+-- ============================================================
+-- QUESTION 4
+-- Which age group experiences the highest attrition?
+--
+-- HYPOTHESIS: Employees within the 30-40 age group are likely
+-- to have a higher attrition rate, possibly due to career
+-- growth opportunities and family responsibilities.
+--
+-- HOW THIS QUERY WORKS:
+-- CASE WHEN creates age group labels from raw age numbers
+-- BETWEEN checks if age falls within a range (inclusive)
+-- The groups are: 18-25, 26-35, 36-45, 46-55, 56+
+-- Everything else follows the same pattern as Query 1
+-- ============================================================
+
+SELECT
+    CASE
+        WHEN Age BETWEEN 18 AND 25 THEN '18-25'
+        WHEN Age BETWEEN 26 AND 35 THEN '26-35'
+        WHEN Age BETWEEN 36 AND 45 THEN '36-45'
+        WHEN Age BETWEEN 46 AND 55 THEN '46-55'
+        ELSE '56+'
+    END AS Age_Group,
+    COUNT(*) AS Total_Employees,
+    SUM(CASE WHEN Attrition = 'Yes' THEN 1 ELSE 0 END) AS Employees_Left,
+    ROUND(100.0 * SUM(CASE WHEN Attrition = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 2) AS Attrition_Rate
+FROM hr_data
+GROUP BY Age_Group
+ORDER BY Attrition_Rate DESC;
+
+-- FINDINGS:
+-- 18-25 age group: 35.77% attrition rate (highest)
+-- 26-35 age group: 19.14% attrition rate (second highest)
+-- Older age groups recorded progressively lower attrition rates
+--
+-- HYPOTHESIS RESULT: Hypothesis was PARTIALLY correct.
+-- The 26-35 group was high but the 18-25 group was highest.
+-- Business Insight: Younger employees are most at risk.
+-- Mentorship programs and career development paths for
+-- early-career staff could improve retention significantly.
+
+
+-- ============================================================
+-- QUESTION 5
+-- Which job role is most at risk of high attrition?
+--
+-- HYPOTHESIS: Research and Development-related job roles may
+-- be at greater risk because they appear to record a higher
+-- number of employees leaving the organization.
+--
+-- HOW THIS QUERY WORKS:
+-- Same structure as previous queries but grouped by JobRole
+-- This gives us a row for every unique job title in the company
+-- with their individual attrition rates ranked highest first
+-- ============================================================
+
+SELECT JobRole,
+       COUNT(*) AS Total_Employees,
+       SUM(CASE WHEN Attrition = 'Yes' THEN 1 ELSE 0 END) AS Employees_Left,
+       ROUND(100.0 * SUM(CASE WHEN Attrition = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 2) AS Attrition_Rate
+FROM hr_data
+GROUP BY JobRole
+ORDER BY Attrition_Rate DESC;
+
+-- FINDINGS:
+-- Sales Representatives: 39.76% attrition rate (highest)
+-- Laboratory Technicians: 23.94% attrition rate
+-- Human Resources roles: 23.08% attrition rate
+-- Research Directors and Managers: lowest attrition rates
+--
+-- HYPOTHESIS RESULT: Hypothesis was INCORRECT.
+-- R&D roles had moderate attrition. Sales Representatives
+-- faced the greatest retention challenges.
+-- Business Insight: High-pressure sales environments,
+-- performance targets, and compensation structures
+-- may be driving Sales Rep attrition.
+
+
+-- ============================================================
+-- QUESTION 6
+-- Does job satisfaction affect employee attrition?
+--
+-- HYPOTHESIS: Employees who are less satisfied with their
+-- jobs are more likely to leave the organization.
+--
+-- HOW THIS QUERY WORKS:
+-- JobSatisfaction is scored 1 to 4 in this dataset
+-- (1 = Low, 2 = Medium, 3 = High, 4 = Very High)
+-- Grouping by this score lets us compare attrition rates
+-- across each satisfaction level to find the pattern
+-- ============================================================
+
+SELECT JobSatisfaction,
+       COUNT(*) AS Total_Employees,
+       SUM(CASE WHEN Attrition = 'Yes' THEN 1 ELSE 0 END) AS Employees_Left,
+       ROUND(100.0 * SUM(CASE WHEN Attrition = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 2) AS Attrition_Rate
+FROM hr_data
+GROUP BY JobSatisfaction
+ORDER BY Attrition_Rate DESC;
+
+-- FINDINGS:
+-- Satisfaction Level 1 (Low): highest attrition rate at 22.84%
+-- Higher satisfaction levels recorded progressively lower attrition
+--
+-- HYPOTHESIS RESULT: Hypothesis was CORRECT.
+-- Lower job satisfaction strongly correlates with higher attrition.
+-- Business Insight: Improving workplace culture, management
+-- support, and employee engagement could reduce attrition
+-- among dissatisfied employees.
+
+
+-- ============================================================
+-- QUESTION 7
+-- Does work-life balance influence attrition?
+--
+-- HYPOTHESIS: Employees with poor work-life balance are more
+-- likely to leave due to stress, burnout, and difficulty
+-- managing personal and professional responsibilities.
+--
+-- HOW THIS QUERY WORKS:
+-- WorkLifeBalance is scored 1 to 4 in this dataset
+-- (1 = Bad, 2 = Good, 3 = Better, 4 = Best)
+-- Grouping by this score reveals how balance levels
+-- connect to the decision to leave the organization
+-- ============================================================
+
+SELECT WorkLifeBalance,
+       COUNT(*) AS Total_Employees,
+       SUM(CASE WHEN Attrition = 'Yes' THEN 1 ELSE 0 END) AS Employees_Left,
+       ROUND(100.0 * SUM(CASE WHEN Attrition = 'Yes' THEN 1 ELSE 0 END) / COUNT(*), 2) AS Attrition_Rate
+FROM hr_data
+GROUP BY WorkLifeBalance
+ORDER BY Attrition_Rate DESC;
+
+-- FINDINGS:
+-- Employees with the lowest work-life balance: highest attrition
+-- Employees with highest balance score: second highest attrition
+-- Employees with moderate balance scores: lowest attrition levels
+--
+-- HYPOTHESIS RESULT: Hypothesis was PARTIALLY correct.
+-- Poor balance drives attrition as expected, but the unexpected
+-- high attrition among employees with the best balance score
+-- suggests additional factors influence their decision to leave.
+-- Business Insight: Further analysis is recommended to understand
+-- why high work-life balance employees also leave at elevated rates.
+
+-- ============================================================
+-- END OF ANALYSIS
+-- All queries written and tested on SQLiteOnline.com
+-- For full findings and recommendations see README.md
+-- ============================================================

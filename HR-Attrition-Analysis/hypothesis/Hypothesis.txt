@@ -1,0 +1,16 @@
+Which department has the highest attrition rate?
+Hypothesis: The Research and Development department is likely to have the highest attrition rate because it appears to have more employees leaving compared to other departments.
+Do employees who work overtime leave more often?
+Hypothesis: Employees who work overtime are more likely to leave the company due to increased stress, workload, and reduced personal time.
+Does monthly income affect employee attrition?
+Hypothesis: Monthly income has an effect on attrition. Employees with lower salaries may be more likely to leave in search of better financial opportunities and improved living conditions.
+Which age group experiences the highest attrition?
+Hypothesis: Employees within the 30–40 age group are likely to have a higher attrition rate, possibly due to career growth opportunities, family responsibilities, or job changes.
+Which job role is most at risk of high attrition?
+Hypothesis: Research and Development-related job roles may be at greater risk because they appear to record a higher number of employees leaving the organization.
+Does job satisfaction affect employee attrition?
+Hypothesis: Job satisfaction plays a major role in attrition. Employees who are less satisfied with their jobs are more likely to leave the organization.
+Does work-life balance influence attrition?
+Hypothesis: Work-life balance significantly affects attrition. Employees with poor work-life balance are more likely to leave due to stress, burnout, and difficulty managing personal and professional responsibilities
+
+
