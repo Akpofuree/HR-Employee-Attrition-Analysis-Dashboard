@@ -157,6 +157,9 @@ HR-Attrition-Project/
 
 ---
 ---
+ Here is a link to see the powerbi presentation
+ https://www.loom.com/share/5c209ec4e4c54cef83a1ae6f3fc322dd
+
 
 ## Author
 
